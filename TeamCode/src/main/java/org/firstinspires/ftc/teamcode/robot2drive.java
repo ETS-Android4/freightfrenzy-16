@@ -21,7 +21,7 @@ public class robot2drive2 extends LinearOpMode {
   double turnSpeed = 0.3;
   double strafe_increment = 0.001;
   double strafe_pow = 0;
-  double max_strafe_pow = 0.5;
+  double max_strafe_pow = 0.4;
 
   @Override
   public void runOpMode() {
