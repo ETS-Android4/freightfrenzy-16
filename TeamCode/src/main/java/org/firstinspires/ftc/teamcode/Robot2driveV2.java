@@ -84,13 +84,7 @@ public class Robot2driveV2 extends LinearOpMode {
 
     //strafing
     checkStrafePowerChange();
-    if (gamepad2.left_bumper) {
-      Strafe(1);
-    } else if (gamepad2.right_bumper) {
-      Strafe(-1);
-    } else {
-      currentStrafePower = 0;
-    }
+    Strafe();
 
     //assigning power values to motors
     rightRearMotor.setPower(rightMotorPower);
@@ -151,14 +145,19 @@ public class Robot2driveV2 extends LinearOpMode {
   }
 
   //strafe code, used in drive method.
-  private void Strafe(int goal) {
-    if (goal == 1 && currentStrafePower < maxStrafePower) {
-      //if strafe power isn't at max, increment
-      currentStrafePower += (strafeIncrement * goal);
-    } 
-    if (goal == -1 && currentStrafePower > (maxStrafePower * -1)) {
-      //same for other direction
-      currentStrafePower += (strafeIncrement * goal);
+  private void Strafe() {
+    if (gamepad2.right_bumper) {
+      if (currentStrafePower < maxStrafePower) {
+        //if strafe power isn't at max, increment
+        currentStrafePower += strafeIncrement;
+      }
+    } else if (gamepad2.left_bumper) {
+      if (currentStrafePower > (maxStrafePower * -1)) {
+        //same for other direction
+        currentStrafePower += strafeIncrement * -1;
+      }
+    } else {
+      currentStrafePower = 0;
     }
   }
 
