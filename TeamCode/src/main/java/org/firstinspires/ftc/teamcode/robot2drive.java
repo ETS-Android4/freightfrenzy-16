@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "robot2drive2 (Blocks to Java)")
-public class robot2drive2 extends LinearOpMode {
+@TeleOp(name = "robot2drive (Blocks to Java)")
+public class robot2drive extends LinearOpMode {
 
   private DcMotor right_rear_motor;
   private DcMotor right_front_motor;
@@ -48,9 +48,7 @@ public class robot2drive2 extends LinearOpMode {
     left_intake = hardwareMap.get(CRServo.class, "left_intake");
 
     //direction fixing (so all motors drive in the same direction)
-    right_rear_motor.setDirection(DcMotorSimple.Direction.REVERSE);
-    right_front_motor.setDirection(DcMotorSimple.Direction.REVERSE);
-    left_rear_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+    left_front_motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
     right_intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
