@@ -49,7 +49,7 @@ public class robot2drive2 extends LinearOpMode {
     }
   }
 
-// drive method, handles all driving-related behavior
+// drive method, handles all driving-related behavior.
   private void Drive() {
     if (gamepad2.right_trigger > 0.5) {
         masterSpeed = 0.8;
