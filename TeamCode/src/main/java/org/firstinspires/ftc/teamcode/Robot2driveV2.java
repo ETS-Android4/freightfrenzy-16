@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "robot2driveV2 (Blocks to Java)")
-public class robot2driveV2 extends LinearOpMode {
+@TeleOp(name = "Robot2driveV2 (Blocks to Java)")
+public class Robot2driveV2 extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();
 
@@ -28,13 +28,15 @@ public class robot2driveV2 extends LinearOpMode {
   //drive constants, to control power
   double masterSpeed = 0.4;
   double turnSpeed = 0.3;
+  String drivingMode = "dualJoystick";
+  double driveModeToggleWait = 0;
 
   //values for strafe control
   double strafeIncrement = 0.001;
   double currentStrafePower = 0;
   double maxStrafePower = 0.4;
 
-  double waitTime = 0;
+  double strafeIncrementWait = 0;
 
   @Override
   public void runOpMode() {
@@ -67,7 +69,7 @@ public class robot2driveV2 extends LinearOpMode {
     if (opModeIsActive()) {
       while (opModeIsActive()) {
         //main drive loop, methods here are called repeatedly while active
-        Drive();
+        driveMain();
         Intake();
         Telemetry();
       }
@@ -75,23 +77,11 @@ public class robot2driveV2 extends LinearOpMode {
   }
 
   // drive method, handles all driving-related behavior.
-  private void Drive() {
-    //check if speed boost is enabled
-    if (gamepad2.right_trigger > 0.5) {
-        masterSpeed = 0.8;
-    } else {
-        masterSpeed = 0.4;
-    }
-    //right stick, used for driving straight
-    if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
-      leftMotorPower = masterSpeed * gamepad2.left_stick_y;
-      rightMotorPower = masterSpeed * gamepad2.left_stick_y;
-    }
-    //left stick, used for turning
-    if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
-      leftMotorPower = turnSpeed * -gamepad2.right_stick_x;
-      rightMotorPower = turnSpeed * gamepad2.right_stick_x;
-    }
+  private void driveMain() {
+    speedBoost();
+    toggleDriveMode();
+    driveCheck(drivingMode);
+
     //strafing
     checkStrafePowerChange();
     if (gamepad2.left_bumper) {
@@ -108,6 +98,56 @@ public class robot2driveV2 extends LinearOpMode {
     leftRearMotor.setPower(leftMotorPower);
     leftFrontMotor.setPower(leftMotorPower);
     strafeMotor.setPower(currentStrafePower);
+  }
+
+  private void driveCheck(String mode) {
+    if (mode.equals("dualJoystick")) {
+      //right stick, used for driving straight
+      if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
+        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
+        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+      }
+      //left stick, used for turning
+      if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
+        leftMotorPower = turnSpeed * -gamepad2.right_stick_x;
+        rightMotorPower = turnSpeed * gamepad2.right_stick_x;
+      }
+    }
+    if (mode.equals("singleJoystick")) {
+      //right stick, used for driving straight
+      if (-0.2 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.2) {
+        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
+        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+      }
+      //left stick, used for turning
+      if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
+        leftMotorPower = turnSpeed * -gamepad2.left_stick_x;
+        rightMotorPower = turnSpeed * gamepad2.left_stick_x;
+      }
+    }
+  }
+
+  private void toggleDriveMode() {
+    //changes between single joystick drive and dual joystick drive
+    if (gamepad2.left_trigger > 0.5 && runtime.seconds() > driveModeToggleWait) {
+      if (drivingMode.equals("dualJoystick")) {
+        drivingMode = "singleJoystick";
+        driveModeToggleWait = runtime.seconds() + 0.5;
+      }
+      else {
+        drivingMode = "dualJoystick";
+        driveModeToggleWait = runtime.seconds() + 0.5;
+      }
+    }
+  }
+
+  private void speedBoost() {
+    //check if speed boost is enabled
+    if (gamepad2.right_trigger > 0.5) {
+      masterSpeed = 0.8;
+    } else {
+      masterSpeed = 0.4;
+    }
   }
 
   //strafe code, used in drive method.
@@ -132,14 +172,14 @@ public class robot2driveV2 extends LinearOpMode {
   }
 
   private void strafePowerChange(String change) {
-    if (runtime.seconds() > waitTime) {
+    if (runtime.seconds() > strafeIncrementWait) {
       if (change.equals("Up") && maxStrafePower < 1) {
         maxStrafePower += 0.1;
-        waitTime = runtime.seconds() + 0.5;
+        strafeIncrementWait = runtime.seconds() + 0.5;
       }
       if (change.equals("Down") && maxStrafePower > 0.2) {
         maxStrafePower -= 0.1;
-        waitTime = runtime.seconds() + 0.5;
+        strafeIncrementWait = runtime.seconds() + 0.5;
       }
     }
   }
@@ -167,6 +207,7 @@ public class robot2driveV2 extends LinearOpMode {
     telemetry.addData("Strafe Max", maxStrafePower);
     telemetry.addData("Left", leftMotorPower);
     telemetry.addData("Right", rightMotorPower);
+    telemetry.addData("Drive Mode", drivingMode);
     telemetry.update();
   }
 }
