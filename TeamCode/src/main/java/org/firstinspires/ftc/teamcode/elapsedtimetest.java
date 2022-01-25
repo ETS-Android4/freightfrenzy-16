@@ -146,6 +146,7 @@ public class elapsedtimetest extends LinearOpMode {
     telemetry.addData("Left", L);
     telemetry.addData("Right", R);
     telemetry.addData("Elapsed Time", runtime.seconds());
+    telemetry.addData("Elapsed Time -400ms", runtime.seconds() - 0.4);
     telemetry.update();
   }
 }
