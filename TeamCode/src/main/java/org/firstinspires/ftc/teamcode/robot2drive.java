@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name = "robot2drive2 (Blocks to Java)")
@@ -14,6 +15,9 @@ public class robot2drive2 extends LinearOpMode {
   private DcMotor left_rear_motor;
   private DcMotor left_front_motor;
   private DcMotor strafe_motor;
+  private CRServo right_intake;
+  private CRServo left_intake;
+
 
   double L;
   double R;
@@ -31,9 +35,14 @@ public class robot2drive2 extends LinearOpMode {
     left_front_motor = hardwareMap.get(DcMotor.class, "left_front_motor");
     strafe_motor = hardwareMap.get(DcMotor.class, "strafe_motor");
 
+    right_intake = hardwareMap.get(CRServo.class, "right_intake");
+    left_intake = hardwareMap.get(CRServo.class, "left_intake");
+
     right_rear_motor.setDirection(DcMotorSimple.Direction.REVERSE);
     right_front_motor.setDirection(DcMotorSimple.Direction.REVERSE);
     left_rear_motor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+    right_intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
     right_rear_motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     right_front_motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -44,6 +53,7 @@ public class robot2drive2 extends LinearOpMode {
     if (opModeIsActive()) {
       while (opModeIsActive()) {
         Drive();
+        Intake();
         Telemetry();
       }
     }
@@ -80,6 +90,7 @@ public class robot2drive2 extends LinearOpMode {
     strafe_motor.setPower(strafe_pow);
   }
 
+//strafe code, used in drive method.
   private void Strafe(int goal) {
     if (goal == 1 && strafe_pow < max_strafe_pow) {
         strafe_pow += (strafe_increment * goal);
@@ -89,9 +100,27 @@ public class robot2drive2 extends LinearOpMode {
     }
   }
 
+//intake code, to take in cargo.
+  private void Intake() {
+    if (gamepad2.x) {
+      Intake_power(1);
+    } else if(gamepad2.y) {
+      Intake_power(-1);
+    } else {
+      Intake_power(0);
+    }
+  }
+
+  private void Intake_power(int d) {
+    right_intake.setPower(d);
+    left_intake.setPower(d);
+  }
+
 
   private void Telemetry() {
     telemetry.addData("Strafe", strafe_pow);
+    telemetry.addData("intakeleft", left_intake);
+    telemetry.addData("intakeright", right_intake);
     telemetry.addData("Left", L);
     telemetry.addData("Right", R);
     telemetry.update();
