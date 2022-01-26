@@ -108,12 +108,12 @@ public class Robot2driveV2 extends LinearOpMode {
       }
     }
     if (mode.equals("singleJoystick")) {
-      //right stick, used for driving straight
+      //right stick used for driving straight and turning
       if (-0.2 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.2) {
         leftMotorPower = masterSpeed * gamepad2.left_stick_y;
         rightMotorPower = masterSpeed * gamepad2.left_stick_y;
       }
-      //left stick, used for turning
+
       if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
         leftMotorPower = turnSpeed * -gamepad2.left_stick_x;
         rightMotorPower = turnSpeed * gamepad2.left_stick_x;
@@ -126,12 +126,11 @@ public class Robot2driveV2 extends LinearOpMode {
     if (gamepad2.left_trigger > 0.5 && runtime.seconds() > driveModeToggleWait) {
       if (drivingMode.equals("dualJoystick")) {
         drivingMode = "singleJoystick";
-        driveModeToggleWait = runtime.seconds() + 0.5;
       }
       else {
         drivingMode = "dualJoystick";
-        driveModeToggleWait = runtime.seconds() + 0.5;
       }
+      driveModeToggleWait = runtime.seconds() + 0.5;
     }
   }
 
