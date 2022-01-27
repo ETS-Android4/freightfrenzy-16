@@ -28,6 +28,7 @@ public class Robot2driveV2 extends LinearOpMode {
   //drive constants, to control power
   double masterSpeed = 0.4;
   double turnSpeed = 0.3;
+
   String drivingMode = "dualJoystick";
   double driveModeToggleWait = 0;
 
@@ -94,6 +95,28 @@ public class Robot2driveV2 extends LinearOpMode {
     strafeMotor.setPower(currentStrafePower);
   }
 
+  private void speedBoost() {
+    //check if speed boost is enabled
+    if (gamepad2.right_trigger > 0.5) {
+      masterSpeed = 0.8;
+    } else {
+      masterSpeed = 0.4;
+    }
+  }
+
+  private void toggleDriveMode() {
+    //changes between single joystick drive and dual joystick drive
+    if (gamepad2.left_trigger > 0.5 && runtime.seconds() > driveModeToggleWait) {
+      if (drivingMode.equals("dualJoystick")) {
+        drivingMode = "singleJoystick";
+      }
+      else {
+        drivingMode = "dualJoystick";
+      }
+      driveModeToggleWait = runtime.seconds() + 0.5;
+    }
+  }
+
   private void driveCheck(String mode) {
     if (mode.equals("dualJoystick")) {
       //right stick, used for driving straight
@@ -118,28 +141,6 @@ public class Robot2driveV2 extends LinearOpMode {
         leftMotorPower = turnSpeed * -gamepad2.left_stick_x;
         rightMotorPower = turnSpeed * gamepad2.left_stick_x;
       }
-    }
-  }
-
-  private void toggleDriveMode() {
-    //changes between single joystick drive and dual joystick drive
-    if (gamepad2.left_trigger > 0.5 && runtime.seconds() > driveModeToggleWait) {
-      if (drivingMode.equals("dualJoystick")) {
-        drivingMode = "singleJoystick";
-      }
-      else {
-        drivingMode = "dualJoystick";
-      }
-      driveModeToggleWait = runtime.seconds() + 0.5;
-    }
-  }
-
-  private void speedBoost() {
-    //check if speed boost is enabled
-    if (gamepad2.right_trigger > 0.5) {
-      masterSpeed = 0.8;
-    } else {
-      masterSpeed = 0.4;
     }
   }
 
