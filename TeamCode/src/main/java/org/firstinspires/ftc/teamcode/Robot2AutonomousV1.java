@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-//template for autonomous when needed
+//automode red side
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -29,6 +29,7 @@ public class Robot2AutonomousV1 extends LinearOpMode {
 
   String autoState = "idle";
   int autoStateCounter = 0;
+  double masterSpeed = 0.5;
 
   @Override
   public void runOpMode() {
@@ -61,76 +62,102 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     if (opModeIsActive()) {
       while (opModeIsActive()) {
         //main drive loop, methods here are called repeatedly while active
-        one();
-        two();
-        three();
-        four();
-        five();
+        carouselApproach();
+        carouselScore();
+        warehouseTransit();
+        warehouseParking();
+        parked();
 
+        Telemetry();
         autoStateCounter ++;
       }
     }
   }
 
-  private void one() {
+  private void carouselApproach() {
     if (autoStateCounter == 0) {
-
+      autoState = "carouselApproach";
+      driveStraight(100);
+      turnLeft(400);
+      driveStraight(1000);
     }
   }
 
-  private void two() {
+
+  private void carouselScore() {
     if (autoStateCounter == 1) {
+      autoState = "carouselScore";
+      spinCarousel();
 
     }
   }
 
-  private void three() {
+  private void warehouseTransit() {
     if (autoStateCounter == 2) {
+      autoState = "warehouseTransit";
+      driveBackwards(2000);
+      //align
 
     }
   }
 
-  private void four() {
+  private void warehouseParking() {
     if (autoStateCounter == 3) {
-
+      autoState = "warehouseParking";
     }
   }
 
-  private void five() {
+  private void parked() {
     if (autoStateCounter == 4) {
-
+      autoState = "parked!";
     }
   }
 
   private void setPower(double pow) {
-    rightRearMotor.setPower(pow);
-    rightFrontMotor.setPower(pow);
-    leftRearMotor.setPower(pow);
-    leftFrontMotor.setPower(pow);
+    rightRearMotor.setPower(pow * masterSpeed);
+    rightFrontMotor.setPower(pow * masterSpeed);
+    leftRearMotor.setPower(pow * masterSpeed);
+    leftFrontMotor.setPower(pow * masterSpeed);
+  }
+
+  private void setPowerLeft(double pow) {
+    leftRearMotor.setPower(pow * masterSpeed);
+    leftFrontMotor.setPower(pow * masterSpeed);
+  }
+
+  private void setPowerRight(double pow) {
+    rightRearMotor.setPower(pow * masterSpeed);
+    rightFrontMotor.setPower(pow * masterSpeed);
   }
 
   private void driveStraight(int time) {
-    setPower(0.5);
-    sleep(time);
-    setPower(0);
-  }
-
-  private void turnLeft(int time) {
-    setPower(0.5);
-    sleep(time);
-    setPower(0);
-  }
-
-  private void turnRight(int time) {
-    setPower(0.5);
+    setPower(1);
     sleep(time);
     setPower(0);
   }
 
   private void driveBackwards(int time) {
-    setPower(0.5);
+    setPower(-1);
     sleep(time);
     setPower(0);
+  }
+
+  private void turnLeft(int time) {
+    setPowerLeft(-1);
+    setPowerRight(1);
+    sleep(time);
+    setPower(0);
+  }
+
+  private void turnRight(int time) {
+    setPowerLeft(1);
+    setPowerRight(-1);
+    sleep(time);
+    setPower(0);
+  }
+
+  private void spinCarousel() {
+    //this
   }
 
   private void Telemetry() {
@@ -139,6 +166,7 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     telemetry.addData("StateCt", autoStateCounter);
     telemetry.addData("Left", leftMotorPower);
     telemetry.addData("Right", rightMotorPower);
+    telemetry.addData("Masterspeed", masterSpeed);
     telemetry.update();
   }
 
