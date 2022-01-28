@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode;
 //template for autonomous when needed
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "Robot2AutonomousV1 (Blocks to Java)")
+@Autonomous(name = "Robot2AutonomousV1 (Blocks to Java)")
 public class Robot2AutonomousV1 extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();
