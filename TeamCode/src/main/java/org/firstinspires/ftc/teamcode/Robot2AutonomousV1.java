@@ -27,6 +27,8 @@ public class Robot2AutonomousV1 extends LinearOpMode {
   double leftMotorPower;
   double rightMotorPower;
 
+  String autoState = "idle";
+  int autoStateCounter = 0;
 
   @Override
   public void runOpMode() {
@@ -59,18 +61,86 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     if (opModeIsActive()) {
       while (opModeIsActive()) {
         //main drive loop, methods here are called repeatedly while active
+        one();
+        two();
+        three();
+        four();
+        five();
 
-
-
+        autoStateCounter ++;
       }
     }
   }
 
+  private void one() {
+    if (autoStateCounter == 0) {
+
+    }
+  }
+
+  private void two() {
+    if (autoStateCounter == 1) {
+
+    }
+  }
+
+  private void three() {
+    if (autoStateCounter == 2) {
+
+    }
+  }
+
+  private void four() {
+    if (autoStateCounter == 3) {
+
+    }
+  }
+
+  private void five() {
+    if (autoStateCounter == 4) {
+
+    }
+  }
+
+  private void setPower(double pow) {
+    rightRearMotor.setPower(pow);
+    rightFrontMotor.setPower(pow);
+    leftRearMotor.setPower(pow);
+    leftFrontMotor.setPower(pow);
+  }
+
+  private void driveStraight(int time) {
+    setPower(0.5);
+    sleep(time);
+    setPower(0);
+  }
+
+  private void turnLeft(int time) {
+    setPower(0.5);
+    sleep(time);
+    setPower(0);
+  }
+
+  private void turnRight(int time) {
+    setPower(0.5);
+    sleep(time);
+    setPower(0);
+  }
+
+  private void driveBackwards(int time) {
+    setPower(0.5);
+    sleep(time);
+    setPower(0);
+  }
 
   private void Telemetry() {
 
+    telemetry.addData("State", autoState);
+    telemetry.addData("StateCt", autoStateCounter);
     telemetry.addData("Left", leftMotorPower);
     telemetry.addData("Right", rightMotorPower);
     telemetry.update();
   }
+
+
 }
