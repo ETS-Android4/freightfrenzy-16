@@ -59,7 +59,9 @@ public class Robot2driveV2 extends LinearOpMode {
     leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
-    leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    leftRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
     rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
