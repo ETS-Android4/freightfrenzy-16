@@ -20,6 +20,8 @@ public class Robot2driveV2 extends LinearOpMode {
 
   private CRServo rightIntake;
   private CRServo leftIntake;
+  private CRServo rightCarousel;
+  private CRServo leftCarousel;
 
   //power to left/right side of drivetrain
   double leftMotorPower;
@@ -53,6 +55,8 @@ public class Robot2driveV2 extends LinearOpMode {
     //servo config
     rightIntake = hardwareMap.get(CRServo.class, "right_intake");
     leftIntake = hardwareMap.get(CRServo.class, "left_intake");
+    rightCarousel = hardwareMap.get(CRServo.class, "right_carousel");
+    leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
     leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -72,6 +76,7 @@ public class Robot2driveV2 extends LinearOpMode {
         //main drive loop, methods here are called repeatedly while active
         driveMain();
         Intake();
+        Carousel();
         Telemetry();
       }
     }
@@ -198,6 +203,17 @@ public class Robot2driveV2 extends LinearOpMode {
   private void intakePower(int d) {
     rightIntake.setPower(d);
     leftIntake.setPower(d);
+  }
+
+  private void Carousel() {
+    if (gamepad2.dpad_left) {
+      leftCarousel.setPower(1);
+    } else if (gamepad2.dpad_right) {
+      rightCarousel.setPower(-1);
+    } else {
+      leftCarousel.setPower(0);
+      rightCarousel.setPower(0);
+    }
   }
 
   //telemetry updates, to see info live, while robot is active

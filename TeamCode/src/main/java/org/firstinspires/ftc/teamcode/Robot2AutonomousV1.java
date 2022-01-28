@@ -22,6 +22,8 @@ public class Robot2AutonomousV1 extends LinearOpMode {
 
   private CRServo rightIntake;
   private CRServo leftIntake;
+  private CRServo rightCarousel;
+  private CRServo leftCarousel;
 
   //power to left/right side of drivetrain
   double leftMotorPower;
@@ -45,6 +47,8 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     //servo config
     rightIntake = hardwareMap.get(CRServo.class, "right_intake");
     leftIntake = hardwareMap.get(CRServo.class, "left_intake");
+    rightCarousel = hardwareMap.get(CRServo.class, "right_carousel");
+    leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
     leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
