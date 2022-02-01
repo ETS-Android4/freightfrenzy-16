@@ -147,15 +147,15 @@ public class Robot2AutonomousV1 extends LinearOpMode {
   }
 
   private void turnLeft(int time) {
-    setPowerLeft(-1);
-    setPowerRight(1);
+    setPowerLeft(1);
+    setPowerRight(-1);
     sleep(time);
     setPower(0);
   }
 
   private void turnRight(int time) {
-    setPowerLeft(1);
-    setPowerRight(-1);
+    setPowerLeft(-1);
+    setPowerRight(1);
     sleep(time);
     setPower(0);
   }
