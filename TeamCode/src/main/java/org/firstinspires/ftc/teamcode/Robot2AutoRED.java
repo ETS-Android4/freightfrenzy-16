@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Robot2AutonomousV1 (Blocks to Java)")
-public class Robot2AutonomousV1 extends LinearOpMode {
+@Autonomous(name = "Robot2AutoRED (Blocks to Java)")
+public class Robot2AutoRED extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();
 
@@ -81,9 +81,14 @@ public class Robot2AutonomousV1 extends LinearOpMode {
   private void carouselApproach() {
     if (autoStateCounter == 0) {
       autoState = "carouselApproach";
-      driveStraight(100);
-      turnLeft(400);
-      driveStraight(1000);
+      driveBackwards(100);
+      driveStraight(200);
+      turnLeft(450);
+      driveStraight(1400);
+      turnRight(200);
+      driveStraight(400);
+      turnLeft(300);
+      driveStraight(430);
     }
   }
 
@@ -92,6 +97,12 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     if (autoStateCounter == 1) {
       autoState = "carouselScore";
       spinCarousel();
+      driveBackwards(600);
+      turnLeft(800);
+      strafeRight(1000);
+      strafeLeft(150);
+
+
 
     }
   }
@@ -99,8 +110,10 @@ public class Robot2AutonomousV1 extends LinearOpMode {
   private void warehouseTransit() {
     if (autoStateCounter == 2) {
       autoState = "warehouseTransit";
-      driveBackwards(2000);
-      //align
+      driveStraight(3000);
+      strafeRight(1500);
+      strafeLeft(70);
+      driveStraight(1500);
 
     }
   }
@@ -108,6 +121,7 @@ public class Robot2AutonomousV1 extends LinearOpMode {
   private void warehouseParking() {
     if (autoStateCounter == 3) {
       autoState = "warehouseParking";
+      strafeLeft(200);
     }
   }
 
@@ -138,12 +152,14 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     setPower(1);
     sleep(time);
     setPower(0);
+    sleep(250);
   }
 
   private void driveBackwards(int time) {
     setPower(-1);
     sleep(time);
     setPower(0);
+    sleep(250);
   }
 
   private void turnLeft(int time) {
@@ -151,6 +167,7 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     setPowerRight(-1);
     sleep(time);
     setPower(0);
+    sleep(250);
   }
 
   private void turnRight(int time) {
@@ -158,10 +175,27 @@ public class Robot2AutonomousV1 extends LinearOpMode {
     setPowerRight(1);
     sleep(time);
     setPower(0);
+    sleep(250);
   }
 
   private void spinCarousel() {
-    //this
+    rightCarousel.setPower(-0.5);
+    leftCarousel.setPower(0.5);
+    sleep(3500);
+    rightCarousel.setPower(0);
+    leftCarousel.setPower(0);
+  }
+
+  private void strafeLeft(int time) {
+    strafeMotor.setPower(0.5);
+    sleep(time);
+    strafeMotor.setPower(0);
+  }
+
+  private void strafeRight(int time) {
+    strafeMotor.setPower(-0.5);
+    sleep(time);
+    strafeMotor.setPower(0);
   }
 
   private void Telemetry() {
