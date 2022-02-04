@@ -207,6 +207,5 @@ public class Robot2AutoBLUE extends LinearOpMode {
     telemetry.addData("Masterspeed", masterSpeed);
     telemetry.update();
   }
-
-
 }
+

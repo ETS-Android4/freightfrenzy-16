@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+//final rendition of V2, to be used at scrimmage
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -203,8 +205,8 @@ public class Robot2driveV2 extends LinearOpMode {
 
   private void Carousel() {
     if (gamepad1.a) {
-      leftCarousel.setPower(1);
-      rightCarousel.setPower(-1);
+      leftCarousel.setPower(0.7);
+      rightCarousel.setPower(-0.7);
     } else {
       leftCarousel.setPower(0);
       rightCarousel.setPower(0);
