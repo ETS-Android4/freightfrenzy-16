@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 //final rendition of V2, to be used at scrimmage
 //NOTE: FIX MOTOR NAMES AFTER SCRIMM (NEW FRONT END)
+//add intermediate drive (from block template?)
+
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

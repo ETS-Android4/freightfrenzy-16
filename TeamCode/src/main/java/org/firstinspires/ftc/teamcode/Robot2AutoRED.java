@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Robot2AutoRED (Blocks to Java)")
+@Autonomous(name = "Robot2AutoRED (Blocks to Java)", preselectTeleOp = "Robot2DriveV2")
 public class Robot2AutoRED extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();

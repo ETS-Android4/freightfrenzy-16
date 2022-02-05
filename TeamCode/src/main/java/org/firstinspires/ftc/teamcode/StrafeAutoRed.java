@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Robot2AutoRED (Blocks to Java)")
+@Autonomous(name = "StrafeAutoRed (Blocks to Java)", preselectTeleOp = "Robot2DriveV2")
 public class StrafeAutoRed extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();
@@ -65,13 +65,10 @@ public class StrafeAutoRed extends LinearOpMode {
     waitForStart();
     if (opModeIsActive()) {
       while (opModeIsActive()) {
-        strafeMotor.setPower(0.5);
-        rightCarousel.setPower(-0.5);
-        leftCarousel.setPower(0.5);
-        sleep(30000);
-        strafeMotor.setPower(0);
-        rightCarousel.setPower(0);
-        leftCarousel.setPower(0);
+        parked();
+
+
+
 
 
 
@@ -84,6 +81,7 @@ public class StrafeAutoRed extends LinearOpMode {
   private void carouselApproach() {
     if (autoStateCounter == 0) {
       autoState = "carouselApproach";
+      strafeLeft(5000);
 
     }
   }
@@ -92,6 +90,7 @@ public class StrafeAutoRed extends LinearOpMode {
   private void carouselScore() {
     if (autoStateCounter == 1) {
       autoState = "carouselScore";
+      spinCarousel();
 
     }
   }
@@ -99,20 +98,23 @@ public class StrafeAutoRed extends LinearOpMode {
   private void warehouseTransit() {
     if (autoStateCounter == 2) {
       autoState = "warehouseTransit";
-
+      strafeMotor.setPower(-0.5);
+      sleep(1500);
+      strafeMotor.setPower(0);
     }
   }
 
   private void warehouseParking() {
     if (autoStateCounter == 3) {
       autoState = "warehouseParking";
-
+        strafeRight(7000);
     }
   }
 
   private void parked() {
     if (autoStateCounter == 4) {
       autoState = "parked!";
+        driveStraight(5000);
 
     }
   }
