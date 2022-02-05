@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-//automode blue side
+//automode with encoders, currently nonfunctional due to issues w leftrearmotor
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
