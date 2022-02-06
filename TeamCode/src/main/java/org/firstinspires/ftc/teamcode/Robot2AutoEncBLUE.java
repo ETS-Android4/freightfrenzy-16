@@ -31,6 +31,8 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
   int autoStateCounter = 0;
   double masterSpeed = 0.5;
 
+  boolean showDriveTelemetry = true;
+
   @Override
   public void runOpMode() {
     //hardware configuration, naming all motors/servos and configuring direction/behaviour
@@ -70,60 +72,11 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
       while (opModeIsActive()) {
         driveStraight(1000);
         //main drive loop, methods here are called repeatedly while active
-        //carouselApproach();
-        //carouselScore();
-        //warehouseTransit();
-        //warehouseParking();
-        //parked();
 
-        Telemetry();
+
+        //Telemetry();
         autoStateCounter ++;
       }
-      rightRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      leftRearMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-      leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-  }
-
-  private void carouselApproach() {
-    if (autoStateCounter == 0) {
-      autoState = "carouselApproach";
-      driveStraight(1000);
-      driveBackwards(1000);
-      turnLeft(1000);
-      turnRight(1000);
-      strafeRight(1000);
-      strafeLeft(1000);
-    }
-  }
-
-
-  private void carouselScore() {
-    if (autoStateCounter == 1) {
-      autoState = "carouselScore";
-      spinCarousel();
-    }
-  }
-
-  private void warehouseTransit() {
-    if (autoStateCounter == 2) {
-      autoState = "warehouseTransit";
-
-
-    }
-  }
-
-  private void warehouseParking() {
-    if (autoStateCounter == 3) {
-      autoState = "warehouseParking";
-      strafeLeft(200);
-    }
-  }
-
-  private void parked() {
-    if (autoStateCounter == 4) {
-      autoState = "parked!";
     }
   }
 
@@ -144,15 +97,59 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     rightFrontMotor.setPower(pow * masterSpeed);
   }
 
-  private void setPow(double pow, DcMotor a) {
-    a.setPower(pow * masterSpeed);
-  }
-
   private void setMode () {
     rightRearMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     leftRearMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    strafeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+  }
+
+  private void reachTarget(boolean showTelemetry) {
+
+    setMode();
+
+    while (posDiff(leftFrontMotor) || posDiff(leftRearMotor) || posDiff(rightFrontMotor) || posDiff(rightRearMotor)) {
+      if (posDiff(leftFrontMotor)) {
+        leftFrontMotor.setPower(masterSpeed);
+      }
+      if (posDiff(leftRearMotor)) {
+        leftRearMotor.setPower(masterSpeed);
+      }
+      if (posDiff(rightFrontMotor)) {
+        rightFrontMotor.setPower(masterSpeed);
+      }
+      if (posDiff(rightRearMotor)) {
+        rightRearMotor.setPower(masterSpeed);
+      }
+      if (posDiff(strafeMotor)) {
+        strafeMotor.setPower(masterSpeed);
+      }
+    }
+    if (showTelemetry) {
+      telemetry.addData("LRTarget", leftRearMotor.getTargetPosition());
+      telemetry.addData("LRCurrent", leftRearMotor.getCurrentPosition());
+      telemetry.addData("LRpower", leftRearMotor.getPower());
+
+      telemetry.addData("LFTarget", leftFrontMotor.getTargetPosition());
+      telemetry.addData("LFCurrent", leftFrontMotor.getCurrentPosition());
+      telemetry.addData("LFpower", leftFrontMotor.getPower());
+
+      telemetry.addData("RFTarget", rightFrontMotor.getTargetPosition());
+      telemetry.addData("RFCurrent", rightFrontMotor.getCurrentPosition());
+      telemetry.addData("RFpower", rightFrontMotor.getPower());
+
+      telemetry.addData("RRTarget", rightRearMotor.getTargetPosition());
+      telemetry.addData("RRCurrent", rightRearMotor.getCurrentPosition());
+      telemetry.addData("RRpower", rightRearMotor.getPower());
+
+      telemetry.addData("STRAFETarget", strafeMotor.getTargetPosition());
+      telemetry.addData("STRAFECurrent", strafeMotor.getCurrentPosition());
+      telemetry.addData("STRAFEpower", strafeMotor.getPower());
+
+      telemetry.update();
+    }
   }
 
   private boolean posDiff(DcMotor a) {
@@ -166,43 +163,16 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     leftRearMotor.setTargetPosition(leftRearMotor.getCurrentPosition() + distance);
     leftFrontMotor.setTargetPosition(leftFrontMotor.getCurrentPosition() + distance);
 
-    setMode();
-
-    while (posDiff(leftFrontMotor) || posDiff(leftRearMotor) || posDiff(rightFrontMotor) || posDiff(rightRearMotor)) {
-      if (posDiff(leftFrontMotor)) {
-        setPow(1, leftFrontMotor);
-      }
-      if (posDiff(leftRearMotor)) {
-        setPow(1, leftRearMotor);
-      }
-      if (posDiff(rightFrontMotor)) {
-        setPow(1, rightFrontMotor);
-      }
-      if (posDiff(rightRearMotor)) {
-        setPow(1, rightRearMotor);
-      }
-      telemetry.addData("LRTarget", leftRearMotor.getTargetPosition());
-      telemetry.addData("LRCurrent", leftRearMotor.getCurrentPosition());
-      telemetry.addData("LRpow", leftRearMotor.getPower());
-      telemetry.addData("FLTarget", leftFrontMotor.getTargetPosition());
-      telemetry.addData("FLCurrent", leftFrontMotor.getCurrentPosition());
-      telemetry.addData("FLpow", leftRearMotor.getPower());
-      telemetry.update();
-    }
+    reachTarget(showDriveTelemetry);
   }
 
   private void driveBackwards(int distance) {
-    // test if pos/neg works
     rightRearMotor.setTargetPosition(rightRearMotor.getCurrentPosition() - distance);
     rightFrontMotor.setTargetPosition(rightFrontMotor.getCurrentPosition() - distance);
     leftRearMotor.setTargetPosition(leftRearMotor.getCurrentPosition() - distance);
     leftFrontMotor.setTargetPosition(leftFrontMotor.getCurrentPosition() - distance);
 
-    setMode();
-
-    while (true) {
-      setPower(1);
-    }
+    reachTarget(showDriveTelemetry);
   }
 
   private void turnLeft(int distance) {
@@ -211,11 +181,7 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     leftRearMotor.setTargetPosition(leftRearMotor.getCurrentPosition() - distance);
     leftFrontMotor.setTargetPosition(leftFrontMotor.getCurrentPosition() - distance);
 
-    setMode();
-
-    while (true) {
-      setPower(1);
-    }
+    reachTarget(showDriveTelemetry);
   }
 
   private void turnRight(int distance) {
@@ -224,17 +190,13 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     leftRearMotor.setTargetPosition(leftRearMotor.getCurrentPosition() + distance);
     leftFrontMotor.setTargetPosition(leftFrontMotor.getCurrentPosition() + distance);
 
-    setMode();
-
-    while (true) {
-      setPower(1);
-    }
+    reachTarget(showDriveTelemetry);
   }
 
-  private void spinCarousel() {
+  private void spinCarousel(int time) {
     rightCarousel.setPower(-0.5);
     leftCarousel.setPower(0.5);
-    sleep(3500);
+    sleep(time);
     rightCarousel.setPower(0);
     leftCarousel.setPower(0);
   }
@@ -242,21 +204,15 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
   private void strafeLeft(int distance) {
     strafeMotor.setTargetPosition(strafeMotor.getCurrentPosition() + distance);
 
-    strafeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    reachTarget(showDriveTelemetry);
 
-    while (true) {
-      setPower(1);
-    }
   }
 
   private void strafeRight(int distance) {
     strafeMotor.setTargetPosition(strafeMotor.getCurrentPosition() - distance);
 
-    strafeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    reachTarget(showDriveTelemetry);
 
-    while (true) {
-      setPower(1);
-    }
   }
 
   private void Telemetry() {

@@ -36,7 +36,7 @@ public class Robot2driveV2 extends LinearOpMode {
   double masterSpeed = 0.4;
   double turnSpeed = 0.3;
 
-  String drivingMode = "singleJoystick";
+  String drivingMode = "a";
   double driveModeToggleWait = 0;
 
   //values for strafe control
@@ -63,7 +63,7 @@ public class Robot2driveV2 extends LinearOpMode {
     leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
-    leftRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
     rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -91,12 +91,9 @@ public class Robot2driveV2 extends LinearOpMode {
   // drive method, handles all driving-related behavior.
   private void driveMain() {
     speedBoost();
-    //toggleDriveMode();
-    driveCheck(drivingMode);
+    drive(drivingMode);
 
     //strafing
-    //checkStrafePowerChange();
-    Strafe();
 
     //assigning power values to motors
     rightRearMotor.setPower(rightMotorPower);
@@ -128,7 +125,7 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
-  private void driveCheck(String mode) {
+  private void drive(String mode) {
     if (mode.equals("dualJoystick")) {
       //right stick, used for driving straight
       if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
@@ -153,6 +150,23 @@ public class Robot2driveV2 extends LinearOpMode {
         rightMotorPower = turnSpeed * -gamepad2.left_stick_x;
       }
     }
+    if (mode.equals("a")) {
+      leftMotorPower = 0;
+      rightMotorPower = 0;
+      currentStrafePower = 0;
+      //right stick used for driving straight and turning
+      if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
+        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
+        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+      }
+      if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
+        leftMotorPower = turnSpeed * gamepad2.right_stick_x;
+        rightMotorPower = turnSpeed * -gamepad2.right_stick_x;
+      }
+      if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
+        currentStrafePower = maxStrafePower * -gamepad2.left_stick_x;
+      }
+    }
   }
 
   //strafe code, used in drive method.
@@ -161,7 +175,7 @@ public class Robot2driveV2 extends LinearOpMode {
       currentStrafePower = maxStrafePower * 1;
     } else if (gamepad2.right_bumper) {
       currentStrafePower = maxStrafePower * -1;
-      }
+    }
     else {
       currentStrafePower = 0;
     }
