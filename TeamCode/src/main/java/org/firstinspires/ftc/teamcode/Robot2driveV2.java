@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-//final rendition of V2, to be used at scrimmage
-//NOTE: FIX MOTOR NAMES AFTER SCRIMM (NEW FRONT END)
-//add intermediate drive (from block template?)
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -15,6 +12,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name = "Robot2driveV2 (Blocks to Java)")
 public class Robot2driveV2 extends LinearOpMode {
 
+  //initializing all motors and servos (making code recognize motors and assigning names)
+
   private ElapsedTime     runtime = new ElapsedTime();
 
   private DcMotor rightRearMotor;
@@ -22,6 +21,7 @@ public class Robot2driveV2 extends LinearOpMode {
   private DcMotor leftRearMotor;
   private DcMotor leftFrontMotor;
   private DcMotor strafeMotor;
+  private DcMotor chainMotor;
 
   private CRServo rightIntake;
   private CRServo leftIntake;
@@ -31,17 +31,21 @@ public class Robot2driveV2 extends LinearOpMode {
   //power to left/right side of drivetrain
   double leftMotorPower;
   double rightMotorPower;
+  double strafePower;
+
 
   //drive constants, to control power
   double masterSpeed = 0.4;
   double turnSpeed = 0.3;
+  double maxStrafePower = 0.5;
 
   String drivingMode = "a";
-  double driveModeToggleWait = 0;
+
+  double chainSpeed = 0.3;
+
 
   //values for strafe control
-  double currentStrafePower = 0;
-  double maxStrafePower = 0.5;
+
 
   double strafeIncrementWait = 0;
 
@@ -55,6 +59,7 @@ public class Robot2driveV2 extends LinearOpMode {
     leftRearMotor = hardwareMap.get(DcMotor.class, "left_rear_motor");
     leftFrontMotor = hardwareMap.get(DcMotor.class, "left_front_motor");
     strafeMotor = hardwareMap.get(DcMotor.class, "strafe_motor");
+    chainMotor = hardwareMap.get(DcMotor.class, "chain_motor");
 
     //servo config
     rightIntake = hardwareMap.get(CRServo.class, "right_intake");
@@ -83,6 +88,7 @@ public class Robot2driveV2 extends LinearOpMode {
         driveMain();
         Intake();
         Carousel();
+        moveChain();
         Telemetry();
       }
     }
@@ -93,14 +99,12 @@ public class Robot2driveV2 extends LinearOpMode {
     speedBoost();
     drive(drivingMode);
 
-    //strafing
-
     //assigning power values to motors
     rightRearMotor.setPower(rightMotorPower);
     rightFrontMotor.setPower(rightMotorPower);
     leftRearMotor.setPower(leftMotorPower);
     leftFrontMotor.setPower(leftMotorPower);
-    strafeMotor.setPower(currentStrafePower);
+    strafeMotor.setPower(strafePower);
   }
 
   private void speedBoost() {
@@ -112,34 +116,21 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
-  private void toggleDriveMode() {
-    //changes between single joystick drive and dual joystick drive
-    if (gamepad2.left_trigger > 0.5 && runtime.seconds() > driveModeToggleWait) {
-      if (drivingMode.equals("dualJoystick")) {
-        drivingMode = "singleJoystick";
-      }
-      else {
-        drivingMode = "dualJoystick";
-      }
-      driveModeToggleWait = runtime.seconds() + 0.5;
-    }
-  }
-
   private void drive(String mode) {
     if (mode.equals("dualJoystick")) {
-      //right stick, used for driving straight
+      //left stick, used for driving straight
       if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
         leftMotorPower = masterSpeed * gamepad2.left_stick_y;
         rightMotorPower = masterSpeed * gamepad2.left_stick_y;
       }
-      //left stick, used for turning
+      //right stick, used for turning
       if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
         leftMotorPower = turnSpeed * gamepad2.right_stick_x;
         rightMotorPower = turnSpeed * -gamepad2.right_stick_x;
       }
     }
     if (mode.equals("singleJoystick")) {
-      //right stick used for driving straight and turning
+      //left stick used for driving straight and turning
       if (-0.2 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.2) {
         leftMotorPower = masterSpeed * gamepad2.left_stick_y;
         rightMotorPower = masterSpeed * gamepad2.left_stick_y;
@@ -153,53 +144,33 @@ public class Robot2driveV2 extends LinearOpMode {
     if (mode.equals("a")) {
       leftMotorPower = 0;
       rightMotorPower = 0;
-      currentStrafePower = 0;
-      //right stick used for driving straight and turning
+      strafePower = 0;
+      //left stick used for driving straight and strafing
       if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
         leftMotorPower = masterSpeed * gamepad2.left_stick_y;
         rightMotorPower = masterSpeed * gamepad2.left_stick_y;
       }
+      //right stick used for turning
       if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
         leftMotorPower = turnSpeed * gamepad2.right_stick_x;
         rightMotorPower = turnSpeed * -gamepad2.right_stick_x;
       }
+      //strafing
       if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
-        currentStrafePower = maxStrafePower * -gamepad2.left_stick_x;
+        strafePower = maxStrafePower * -gamepad2.left_stick_x;
       }
     }
   }
 
-  //strafe code, used in drive method.
+  //strafe code, used in drive method (currently not used due to new drive style)
   private void Strafe() {
     if (gamepad2.left_bumper) {
-      currentStrafePower = maxStrafePower * 1;
+      strafePower = maxStrafePower * 1;
     } else if (gamepad2.right_bumper) {
-      currentStrafePower = maxStrafePower * -1;
+      strafePower = maxStrafePower * -1;
     }
     else {
-      currentStrafePower = 0;
-    }
-  }
-
-  private void checkStrafePowerChange(){
-    if (gamepad2.a) {
-      strafePowerChange("Up");
-    }
-    if (gamepad2.b) {
-      strafePowerChange("Down");
-    }
-  }
-
-  private void strafePowerChange(String change) {
-    if (runtime.seconds() > strafeIncrementWait) {
-      if (change.equals("Up") && maxStrafePower < 1) {
-        maxStrafePower += 0.1;
-        strafeIncrementWait = runtime.seconds() + 0.5;
-      }
-      if (change.equals("Down") && maxStrafePower > 0.2) {
-        maxStrafePower -= 0.1;
-        strafeIncrementWait = runtime.seconds() + 0.5;
-      }
+      strafePower = 0;
     }
   }
 
@@ -230,9 +201,20 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
+  private void moveChain() {
+    if (gamepad2.right_bumper) {
+      chainMotor.setPower(1*chainSpeed);
+    } else if(gamepad2.left_bumper) {
+      chainMotor.setPower(-1*chainSpeed);
+    } else {
+      chainMotor.setPower(0);
+    }
+  }
+
   //telemetry updates, to see info live, while robot is active
   private void Telemetry() {
-    telemetry.addLine("Robot v2. Code developed by Chris Simms");
+    telemetry.addLine("Bartholomew V2");
+    telemetry.addData("Chain pow", chainMotor.getPower());
     telemetry.update();
   }
 }
