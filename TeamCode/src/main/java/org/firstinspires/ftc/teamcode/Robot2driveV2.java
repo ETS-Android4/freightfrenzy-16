@@ -12,9 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @TeleOp(name = "Robot2driveV2 (Blocks to Java)")
 public class Robot2driveV2 extends LinearOpMode {
 
-  //initializing all motors and servos (making code recognize motors and assigning names)
-
   private ElapsedTime     runtime = new ElapsedTime();
+
+  //initializing all motors and servos (making code recognize motors and assigning names)
 
   private DcMotor rightRearMotor;
   private DcMotor rightFrontMotor;
@@ -29,8 +29,8 @@ public class Robot2driveV2 extends LinearOpMode {
   private CRServo leftCarousel;
 
   //power to left/right side of drivetrain
-  double leftMotorPower;
-  double rightMotorPower;
+  double leftDrivePower;
+  double rightDrivePower;
   double strafePower;
 
 
@@ -39,15 +39,11 @@ public class Robot2driveV2 extends LinearOpMode {
   double turnSpeed = 0.3;
   double maxStrafePower = 0.5;
 
-  String drivingMode = "a";
+
+  //driving mode
+  String drivingMode = "joystick strafe";
 
   double chainSpeed = 0.3;
-
-
-  //values for strafe control
-
-
-  double strafeIncrementWait = 0;
 
   @Override
   public void runOpMode() {
@@ -68,10 +64,8 @@ public class Robot2driveV2 extends LinearOpMode {
     leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
-
     rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
     rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
     //prevent robot from rolling when power is cut
@@ -83,9 +77,10 @@ public class Robot2driveV2 extends LinearOpMode {
     //opMode loop, this is what actually runs when you press start.
     waitForStart();
     if (opModeIsActive()) {
+      //stuff here will be done once when "INIT" is pressed (driver hub)
       while (opModeIsActive()) {
         //main drive loop, methods here are called repeatedly while active
-        driveMain();
+        drive(drivingMode);
         Intake();
         Carousel();
         moveChain();
@@ -94,72 +89,64 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
-  // drive method, handles all driving-related behavior.
-  private void driveMain() {
-    speedBoost();
-    drive(drivingMode);
-
-    //assigning power values to motors
-    rightRearMotor.setPower(rightMotorPower);
-    rightFrontMotor.setPower(rightMotorPower);
-    leftRearMotor.setPower(leftMotorPower);
-    leftFrontMotor.setPower(leftMotorPower);
-    strafeMotor.setPower(strafePower);
-  }
-
-  private void speedBoost() {
-    //check if speed boost is enabled
+  //drive loop, handles joystick control for wheels and strafe wheel, as well as speed boost
+  private void drive(String mode) {
     if (gamepad2.right_trigger > 0.5) {
       masterSpeed = 0.8;
     } else {
       masterSpeed = 0.4;
     }
-  }
 
-  private void drive(String mode) {
-    if (mode.equals("dualJoystick")) {
+    if (mode.equals("dual joystick")) {
       //left stick, used for driving straight
       if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
-        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
-        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
       }
       //right stick, used for turning
       if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
-        leftMotorPower = turnSpeed * gamepad2.right_stick_x;
-        rightMotorPower = turnSpeed * -gamepad2.right_stick_x;
+        leftDrivePower = turnSpeed * gamepad2.right_stick_x;
+        rightDrivePower = turnSpeed * -gamepad2.right_stick_x;
       }
     }
-    if (mode.equals("singleJoystick")) {
+    if (mode.equals("single joystick")) {
       //left stick used for driving straight and turning
       if (-0.2 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.2) {
-        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
-        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
       }
-
       if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
-        leftMotorPower = turnSpeed * gamepad2.left_stick_x;
-        rightMotorPower = turnSpeed * -gamepad2.left_stick_x;
+        leftDrivePower = turnSpeed * gamepad2.left_stick_x;
+        rightDrivePower = turnSpeed * -gamepad2.left_stick_x;
       }
     }
-    if (mode.equals("a")) {
-      leftMotorPower = 0;
-      rightMotorPower = 0;
+    if (mode.equals("joystick strafe")) {
+      leftDrivePower = 0;
+      rightDrivePower = 0;
       strafePower = 0;
       //left stick used for driving straight and strafing
       if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
-        leftMotorPower = masterSpeed * gamepad2.left_stick_y;
-        rightMotorPower = masterSpeed * gamepad2.left_stick_y;
+        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
       }
       //right stick used for turning
       if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
-        leftMotorPower = turnSpeed * gamepad2.right_stick_x;
-        rightMotorPower = turnSpeed * -gamepad2.right_stick_x;
+        leftDrivePower = turnSpeed * gamepad2.right_stick_x;
+        rightDrivePower = turnSpeed * -gamepad2.right_stick_x;
       }
       //strafing
       if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
         strafePower = maxStrafePower * -gamepad2.left_stick_x;
       }
     }
+
+    Strafe();
+
+    rightRearMotor.setPower(rightDrivePower);
+    rightFrontMotor.setPower(rightDrivePower);
+    leftRearMotor.setPower(leftDrivePower);
+    leftFrontMotor.setPower(leftDrivePower);
+    strafeMotor.setPower(strafePower);
   }
 
   //strafe code, used in drive method (currently not used due to new drive style)
@@ -185,12 +172,13 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
-  //set intake power
+  //set intake power (only used to shorten above code)
   private void intakePower(float d) {
     rightIntake.setPower(d);
     leftIntake.setPower(d);
   }
 
+  //handles both duck carousels
   private void Carousel() {
     if (gamepad1.a) {
       leftCarousel.setPower(0.7);
@@ -201,6 +189,7 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
+  //moves chain up and down
   private void moveChain() {
     if (gamepad2.right_bumper) {
       chainMotor.setPower(1*chainSpeed);
@@ -211,7 +200,7 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
-  //telemetry updates, to see info live, while robot is active
+  //telemetry updates, to see info live while robot is active
   private void Telemetry() {
     telemetry.addLine("Bartholomew V2");
     telemetry.addData("Chain pow", chainMotor.getPower());
