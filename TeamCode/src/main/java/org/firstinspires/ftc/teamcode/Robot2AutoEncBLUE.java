@@ -84,7 +84,8 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     }
   }
 
-
+  //autonomous stages, goes through one by one and completes tasks
+  //simply to divide code well, not super important
   private void carouselScore() {
     if (autoStateCounter == 0) {
       autoState = "carouselApproach";
@@ -128,12 +129,11 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     leftRearMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
   }
 
+  //difference between current and target
   private boolean posDiff(DcMotor a) {
     return Math.abs(a.getCurrentPosition() - a.getTargetPosition()) > 30;
-
   }
 
   private void reachTarget(boolean showTelemetry) {

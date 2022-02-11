@@ -41,9 +41,16 @@ public class Robot2driveV2 extends LinearOpMode {
 
 
   //driving mode
-  String drivingMode = "joystick strafe";
+  String drivingMode = "A";
 
+  //chain
   double chainSpeed = 0.3;
+
+  int chainPosition = 1;
+  double liftTimeout = 0;
+  double dumpTimer = 0;
+  boolean preDump = true;
+
 
   @Override
   public void runOpMode() {
@@ -64,8 +71,8 @@ public class Robot2driveV2 extends LinearOpMode {
     leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
     //direction fixing (so all motors drive in the same direction)
-    rightFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-    rightRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    leftRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
     //prevent robot from rolling when power is cut
@@ -73,6 +80,8 @@ public class Robot2driveV2 extends LinearOpMode {
     rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     leftRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
     //opMode loop, this is what actually runs when you press start.
     waitForStart();
@@ -84,6 +93,7 @@ public class Robot2driveV2 extends LinearOpMode {
         Intake();
         Carousel();
         moveChain();
+        liftFreight();
         Telemetry();
       }
     }
@@ -97,50 +107,23 @@ public class Robot2driveV2 extends LinearOpMode {
       masterSpeed = 0.4;
     }
 
-    if (mode.equals("dual joystick")) {
-      //left stick, used for driving straight
-      if (-0.2 < gamepad2.right_stick_x && gamepad2.right_stick_x < 0.2) {
-        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
-        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
-      }
-      //right stick, used for turning
-      if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
-        leftDrivePower = turnSpeed * gamepad2.right_stick_x;
-        rightDrivePower = turnSpeed * -gamepad2.right_stick_x;
-      }
+    leftDrivePower = 0;
+    rightDrivePower = 0;
+    strafePower = 0;
+    //left stick used for driving straight and strafing
+    if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
+      leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+      rightDrivePower = masterSpeed * gamepad2.left_stick_y;
     }
-    if (mode.equals("single joystick")) {
-      //left stick used for driving straight and turning
-      if (-0.2 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.2) {
-        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
-        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
-      }
-      if (-0.2 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.2) {
-        leftDrivePower = turnSpeed * gamepad2.left_stick_x;
-        rightDrivePower = turnSpeed * -gamepad2.left_stick_x;
-      }
+    //right stick used for turning
+    if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
+      leftDrivePower = turnSpeed * -gamepad2.right_stick_x;
+      rightDrivePower = turnSpeed * gamepad2.right_stick_x;
     }
-    if (mode.equals("joystick strafe")) {
-      leftDrivePower = 0;
-      rightDrivePower = 0;
-      strafePower = 0;
-      //left stick used for driving straight and strafing
-      if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
-        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
-        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
-      }
-      //right stick used for turning
-      if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
-        leftDrivePower = turnSpeed * gamepad2.right_stick_x;
-        rightDrivePower = turnSpeed * -gamepad2.right_stick_x;
-      }
-      //strafing
-      if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
-        strafePower = maxStrafePower * -gamepad2.left_stick_x;
-      }
+    //strafing
+    if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
+      strafePower = maxStrafePower * gamepad2.left_stick_x;
     }
-
-    Strafe();
 
     rightRearMotor.setPower(rightDrivePower);
     rightFrontMotor.setPower(rightDrivePower);
@@ -195,15 +178,66 @@ public class Robot2driveV2 extends LinearOpMode {
       chainMotor.setPower(1*chainSpeed);
     } else if(gamepad2.left_bumper) {
       chainMotor.setPower(-1*chainSpeed);
+    }
+  }
+
+  private boolean posDiff(DcMotor a, int tolerance) {
+    return Math.abs(a.getCurrentPosition() - a.getTargetPosition()) > tolerance;
+  }
+
+  private void liftFreight() {
+    //chainPosition, 0 = load; 1 = hold; 2 = dump
+    // 2 should return to 1 after dump
+
+    if (liftTimeout < runtime.seconds()) {
+      if (gamepad2.dpad_up && chainPosition < 2) {
+        chainPosition++;
+        liftTimeout = runtime.seconds() + 0.5;
+      }
+      if (gamepad2.dpad_down && chainPosition > 0) {
+        chainPosition--;
+        liftTimeout = runtime.seconds() + 0.5;
+      }
+    }
+
+    if (chainPosition == 0) {
+      chainMotor.setTargetPosition(-450);
+      //load -100
+    }
+    else if (chainPosition == 1) {
+      chainMotor.setTargetPosition(1400);
+      //hold 1930
+    }
+    else if (chainPosition == 2) {
+      chainMotor.setTargetPosition(1700);
+      if (posDiff(chainMotor, 10) == false) {
+        if (preDump) {
+          preDump = false;
+          dumpTimer = runtime.seconds() + 3;
+        }
+        if (dumpTimer < runtime.seconds()) {
+          dumpTimer = runtime.seconds() + 3;
+          chainPosition--;
+        }
+      }
+      //dump 2230
+    }
+    if (posDiff(chainMotor, 10)) {
+      chainMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      chainMotor.setPower(0.2);
     } else {
       chainMotor.setPower(0);
     }
   }
 
+  // reset chain pos to bottom each time program ends
+
   //telemetry updates, to see info live while robot is active
   private void Telemetry() {
     telemetry.addLine("Bartholomew V2");
     telemetry.addData("Chain pow", chainMotor.getPower());
+    telemetry.addData("Chain encoder", chainMotor.getCurrentPosition());
+    telemetry.addData("Chain pos", chainPosition);
     telemetry.update();
   }
 }
