@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+//NOT IN USE
+
 //automode red side
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

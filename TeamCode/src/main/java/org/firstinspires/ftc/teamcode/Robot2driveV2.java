@@ -49,7 +49,6 @@ public class Robot2driveV2 extends LinearOpMode {
   int chainPosition = 1;
   double liftTimeout = 0;
   double dumpTimer = 0;
-  boolean preDump = true;
 
 
   @Override
@@ -201,20 +200,16 @@ public class Robot2driveV2 extends LinearOpMode {
     }
 
     if (chainPosition == 0) {
-      chainMotor.setTargetPosition(-450);
+      chainMotor.setTargetPosition(-1550);
       //load -100
     }
     else if (chainPosition == 1) {
-      chainMotor.setTargetPosition(1400);
+      chainMotor.setTargetPosition(300);
       //hold 1930
     }
     else if (chainPosition == 2) {
-      chainMotor.setTargetPosition(1700);
+      chainMotor.setTargetPosition(800);
       if (posDiff(chainMotor, 10) == false) {
-        if (preDump) {
-          preDump = false;
-          dumpTimer = runtime.seconds() + 3;
-        }
         if (dumpTimer < runtime.seconds()) {
           dumpTimer = runtime.seconds() + 3;
           chainPosition--;

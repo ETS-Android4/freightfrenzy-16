@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+//NOT IN USE
+
 //simple automode, only using strafe, blue side
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;

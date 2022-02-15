@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 //automode with encoders, blue side
-// to be renamed
+
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Robot2AutoEncBLUE (Blocks to Java)", preselectTeleOp = "Robot2DriveV2")
-public class Robot2AutoEncBLUE extends LinearOpMode {
+@Autonomous(name = "DuckParkBlue (Blocks to Java)", preselectTeleOp = "Robot2DriveV2")
+public class DuckParkBlue extends LinearOpMode {
 
   private ElapsedTime     runtime = new ElapsedTime();
 
@@ -74,6 +74,7 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
       while (opModeIsActive()) {
         carouselScore();
         warehouseTransit();
+        warehouseParking();
 
         //main drive loop, methods here are called repeatedly while active
 
@@ -89,9 +90,9 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
   private void carouselScore() {
     if (autoStateCounter == 0) {
       autoState = "carouselApproach";
-      strafeRight(300);
+      strafeLeft(500);
       driveStraight(950);
-      spinCarousel(3000);
+      spinCarousel(4000);
 
 
     }
@@ -102,10 +103,9 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
     if (autoStateCounter == 1) {
       autoState = "warehouseTransit";
       driveBackwards(400);
-      turnRight(900);
-      driveStraight(2700);
-      turnRight(70);
-      strafeRight(800);
+      turnLeft(900);
+      driveStraight(2300);
+      strafeLeft(2000);
 
 
     }
@@ -114,6 +114,8 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
   private void warehouseParking() {
     if (autoStateCounter == 2) {
       autoState = "warehouseParking";
+      driveStraight(2100);
+      strafeRight(500);
 
     }
   }
@@ -133,7 +135,7 @@ public class Robot2AutoEncBLUE extends LinearOpMode {
 
   //difference between current and target
   private boolean posDiff(DcMotor a) {
-    return Math.abs(a.getCurrentPosition() - a.getTargetPosition()) > 30;
+    return Math.abs(a.getCurrentPosition() - a.getTargetPosition()) > 10;
   }
 
   private void reachTarget(boolean showTelemetry) {
