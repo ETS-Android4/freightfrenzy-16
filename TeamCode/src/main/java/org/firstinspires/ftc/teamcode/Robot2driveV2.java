@@ -33,15 +33,10 @@ public class Robot2driveV2 extends LinearOpMode {
   double rightDrivePower;
   double strafePower;
 
-
   //drive constants, to control power
   double masterSpeed = 0.4;
   double turnSpeed = 0.3;
   double maxStrafePower = 0.5;
-
-
-  //driving mode
-  String drivingMode = "A";
 
   //chain
   double chainSpeed = 0.3;
@@ -88,10 +83,9 @@ public class Robot2driveV2 extends LinearOpMode {
       //stuff here will be done once when "INIT" is pressed (driver hub)
       while (opModeIsActive()) {
         //main drive loop, methods here are called repeatedly while active
-        drive(drivingMode);
+        drive("singlejoystick");
         Intake();
         Carousel();
-        moveChain();
         liftFreight();
         Telemetry();
       }
@@ -109,19 +103,35 @@ public class Robot2driveV2 extends LinearOpMode {
     leftDrivePower = 0;
     rightDrivePower = 0;
     strafePower = 0;
-    //left stick used for driving straight and strafing
-    if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
-      leftDrivePower = masterSpeed * gamepad2.left_stick_y;
-      rightDrivePower = masterSpeed * gamepad2.left_stick_y;
+
+    if (mode.equals("A")) {
+      //left stick used for driving straight and strafing
+      if (-0.2 > gamepad2.left_stick_y | gamepad2.left_stick_y > 0.2) {
+        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
+      }
+      //right stick used for turning
+      if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
+        leftDrivePower = turnSpeed * -gamepad2.right_stick_x;
+        rightDrivePower = turnSpeed * gamepad2.right_stick_x;
+      }
+      //strafing
+      if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
+        strafePower = maxStrafePower * gamepad2.left_stick_x;
+      }
     }
-    //right stick used for turning
-    if (-0.2 > gamepad2.right_stick_x | gamepad2.right_stick_x > 0.2) {
-      leftDrivePower = turnSpeed * -gamepad2.right_stick_x;
-      rightDrivePower = turnSpeed * gamepad2.right_stick_x;
-    }
-    //strafing
-    if (-0.2 > gamepad2.left_stick_x | gamepad2.left_stick_x > 0.2) {
-      strafePower = maxStrafePower * gamepad2.left_stick_x;
+    else if (mode.equals("singlejoystick")) {
+      //right stick used for driving straight and turning
+      if (-0.5 < gamepad2.left_stick_x && gamepad2.left_stick_x < 0.5) {
+        leftDrivePower = masterSpeed * gamepad2.left_stick_y;
+        rightDrivePower = masterSpeed * gamepad2.left_stick_y;
+      }
+
+      if (-0.5 < gamepad2.left_stick_y && gamepad2.left_stick_y < 0.5) {
+        leftDrivePower = turnSpeed * gamepad2.left_stick_x;
+        rightDrivePower = turnSpeed * -gamepad2.left_stick_x;
+      }
+      Strafe();
     }
 
     rightRearMotor.setPower(rightDrivePower);
@@ -134,9 +144,9 @@ public class Robot2driveV2 extends LinearOpMode {
   //strafe code, used in drive method (currently not used due to new drive style)
   private void Strafe() {
     if (gamepad2.left_bumper) {
-      strafePower = maxStrafePower * 1;
-    } else if (gamepad2.right_bumper) {
       strafePower = maxStrafePower * -1;
+    } else if (gamepad2.right_bumper) {
+      strafePower = maxStrafePower * 1;
     }
     else {
       strafePower = 0;
@@ -145,10 +155,10 @@ public class Robot2driveV2 extends LinearOpMode {
 
   //intake code, to take in cargo.
   private void Intake() {
-    if (gamepad1.right_trigger > 0.1) {
-      intakePower(gamepad1.right_trigger);
-    } else if(gamepad1.left_trigger > 0.1) {
-      intakePower(gamepad1.left_trigger * -1);
+    if (gamepad1.left_trigger > 0.1) {
+      intakePower(gamepad1.left_trigger);
+    } else if(gamepad1.right_trigger > 0.1) {
+      intakePower(gamepad1.right_trigger * -1);
     } else {
       intakePower(0);
     }
@@ -189,43 +199,42 @@ public class Robot2driveV2 extends LinearOpMode {
     // 2 should return to 1 after dump
 
     if (liftTimeout < runtime.seconds()) {
-      if (gamepad2.dpad_up && chainPosition < 2) {
+      if (gamepad1.dpad_up && chainPosition < 2) {
         chainPosition++;
         liftTimeout = runtime.seconds() + 0.5;
       }
-      if (gamepad2.dpad_down && chainPosition > 0) {
+      if (gamepad1.dpad_down && chainPosition > 0) {
         chainPosition--;
         liftTimeout = runtime.seconds() + 0.5;
       }
     }
 
+    int bottomChainPosition = 0
+
     if (chainPosition == 0) {
-      chainMotor.setTargetPosition(-1550);
-      //load -100
+      chainMotor.setTargetPosition(bottomChainPosition);
     }
+    //+1850
     else if (chainPosition == 1) {
-      chainMotor.setTargetPosition(300);
-      //hold 1930
+      chainMotor.setTargetPosition(bottomChainPosition + 1850);
     }
+    //+500
     else if (chainPosition == 2) {
-      chainMotor.setTargetPosition(800);
-      if (posDiff(chainMotor, 10) == false) {
+      chainMotor.setTargetPosition(bottomChainPosition + 2350);
+      if (!posDiff(chainMotor, 5)) {
         if (dumpTimer < runtime.seconds()) {
           dumpTimer = runtime.seconds() + 3;
           chainPosition--;
         }
       }
-      //dump 2230
     }
-    if (posDiff(chainMotor, 10)) {
+    if (posDiff(chainMotor, 5)) {
       chainMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-      chainMotor.setPower(0.2);
+      chainMotor.setPower(chainSpeed);
     } else {
       chainMotor.setPower(0);
     }
   }
-
-  // reset chain pos to bottom each time program ends
 
   //telemetry updates, to see info live while robot is active
   private void Telemetry() {
