@@ -28,6 +28,8 @@ public class Robot2driveV2 extends LinearOpMode {
   private CRServo rightCarousel;
   private CRServo leftCarousel;
 
+  private CRServo topIntake;
+
   //power to left/right side of drivetrain
   double leftDrivePower;
   double rightDrivePower;
@@ -40,6 +42,8 @@ public class Robot2driveV2 extends LinearOpMode {
 
   //chain
   double chainSpeed = 0.3;
+  double topIntPow = 0.2;
+  double timer = 0;
 
   int chainPosition = 1;
   double liftTimeout = 0;
@@ -61,6 +65,8 @@ public class Robot2driveV2 extends LinearOpMode {
     //servo config
     rightIntake = hardwareMap.get(CRServo.class, "right_intake");
     leftIntake = hardwareMap.get(CRServo.class, "left_intake");
+    topIntake = hardwareMap.get(CRServo.class, "top_intake");
+
     rightCarousel = hardwareMap.get(CRServo.class, "right_carousel");
     leftCarousel = hardwareMap.get(CRServo.class, "left_carousel");
 
@@ -68,14 +74,13 @@ public class Robot2driveV2 extends LinearOpMode {
     leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     leftRearMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     rightIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+    topIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
     //prevent robot from rolling when power is cut
     rightRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     rightFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     leftRearMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     leftFrontMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
 
     //opMode loop, this is what actually runs when you press start.
     waitForStart();
@@ -143,9 +148,9 @@ public class Robot2driveV2 extends LinearOpMode {
 
   //strafe code, used in drive method (currently not used due to new drive style)
   private void Strafe() {
-    if (gamepad2.left_bumper) {
+    if (gamepad2.right_bumper) {
       strafePower = maxStrafePower * -1;
-    } else if (gamepad2.right_bumper) {
+    } else if (gamepad2.left_bumper) {
       strafePower = maxStrafePower * 1;
     }
     else {
@@ -209,26 +214,36 @@ public class Robot2driveV2 extends LinearOpMode {
       }
     }
 
-    int bottomChainPosition = 0
+    int bottomChainPosition = -1860;
+    int holdChainPosition = 0;
+
+
+    if ((chainMotor.getCurrentPosition() < (holdChainPosition - 900)) && (chainMotor.getCurrentPosition() > (holdChainPosition - 1840)) && chainPosition == 1) {
+      topIntake.setPower(topIntPow);
+    }
+    else if ((chainMotor.getCurrentPosition() < (holdChainPosition - 900)) && (chainMotor.getCurrentPosition() > (holdChainPosition -1840)) && chainPosition == 0) {
+      topIntake.setPower(-1 * topIntPow);
+    }
+    else {
+      topIntake.setPower(0);
+    }
+
 
     if (chainPosition == 0) {
-      chainMotor.setTargetPosition(bottomChainPosition);
+      chainMotor.setTargetPosition(holdChainPosition - 1865);
     }
     //+1850
     else if (chainPosition == 1) {
-      chainMotor.setTargetPosition(bottomChainPosition + 1850);
+      chainMotor.setTargetPosition(holdChainPosition);
     }
     //+500
     else if (chainPosition == 2) {
-      chainMotor.setTargetPosition(bottomChainPosition + 2350);
-      if (!posDiff(chainMotor, 5)) {
-        if (dumpTimer < runtime.seconds()) {
-          dumpTimer = runtime.seconds() + 3;
-          chainPosition--;
-        }
-      }
+      chainMotor.setTargetPosition(holdChainPosition + 310);
+      //if (!posDiff(chainMotor, 5)) {
+      //chainPosition--;
+      //}
     }
-    if (posDiff(chainMotor, 5)) {
+    if (posDiff(chainMotor, 1)) {
       chainMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
       chainMotor.setPower(chainSpeed);
     } else {
@@ -236,12 +251,15 @@ public class Robot2driveV2 extends LinearOpMode {
     }
   }
 
+
   //telemetry updates, to see info live while robot is active
   private void Telemetry() {
     telemetry.addLine("Bartholomew V2");
     telemetry.addData("Chain pow", chainMotor.getPower());
     telemetry.addData("Chain encoder", chainMotor.getCurrentPosition());
     telemetry.addData("Chain pos", chainPosition);
+
+
     telemetry.update();
   }
 }
